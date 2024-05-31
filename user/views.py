@@ -1,23 +1,16 @@
-from django.shortcuts import render
+from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.generics import RetrieveAPIView
-from rest_framework import status, viewsets
-
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 from .models import User
-from .serializer import UserSerializer
+from .serializers import UserSerializer
+
+
+class UserView(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
 # Create your views here.
 
 
-class UserView(viewsets.ModelViewSet):
-    model = User
-    serializer_class = UserSerializer
-
-    def retrieve(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            instance = request.user
-            serializer = UserSerializer(instance)
-            return Response(serializer.data)
-        else:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
