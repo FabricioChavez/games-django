@@ -1,10 +1,9 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-
-from .views import GameViewSet
+from car_contains_offer.views import CarContainsOfferViewSet
 
 router = DefaultRouter()
-router.register(r'games', GameViewSet , basename='games')
+router.register(r'carcontainsoffers', CarContainsOfferViewSet, basename='carcontainsoffer')
 
 urlpatterns = [
     path('', include(router.urls)),

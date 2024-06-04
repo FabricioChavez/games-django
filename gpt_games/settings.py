@@ -28,7 +28,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'user'
+    'user',
+    'games',
+    'billing_info',
+    'offer',
+    'review',
+    'shopping_car',
+    'car_contains_offer',
+    'transaction'
 ]
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

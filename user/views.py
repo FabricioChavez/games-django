@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 class UserView(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -36,17 +37,18 @@ def login(request, format=None):
     if not user.check_password(request.data['password']):
         return Response({'error': 'Invalid username or password'}, status=status.HTTP_400_BAD_REQUEST)
     token, created = Token.objects.get_or_create(user=user)
-    serializer = UserSerializer(instance=user)
+    serializer = UserSerializer(instance=user , context={'request': request})
     return Response({'token': token.key, 'user': serializer.data}, status=status.HTTP_200_OK)
 
 
-class ProfileView(viewsets.ViewSet):
+class ProfileViewSet(viewsets.ViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def list(self, request):
-        logger.info(f'Authorization header: {request.headers.get("Authorization")}')
+        # Retorna el perfil del usuario autenticado
         user = request.user
         logger.info(f'Authenticated user: {user}')
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
+        serializer = UserSerializer(user, context={'request': request})
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'user': serializer.data, 'token': token.key}, status=status.HTTP_200_OK)

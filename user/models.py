@@ -27,4 +27,3 @@ class User(AbstractUser):
         verbose_name='user permissions'
     )
 
-    # Override the email field to make it unique if needed
