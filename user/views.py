@@ -18,7 +18,8 @@ logger = logging.getLogger(__name__)
 class UserView(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -28,7 +29,6 @@ class UserView(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         logger.info(f'User created: {user.username}, Token: {token.key}')
         return Response({'token': token.key}, status=status.HTTP_201_CREATED, headers=headers)
-
 
 
 @api_view(['POST'])
@@ -49,19 +49,20 @@ def login(request):
         return Response({"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST)
 
     token, created = Token.objects.get_or_create(user=user)
-    serializer = UserSerializer(instance=user , context={'request': request})
+    serializer = UserSerializer(instance=user, context={'request': request})
     return Response({'token': token.key, 'user': serializer.data}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
-def register(request , format=None):
-    serialiazer = UserSerializer(data=request.data , context={'request': request})
+def register(request, format=None):
+    serialiazer = UserSerializer(
+        data=request.data, context={'request': request})
 
     if serialiazer.is_valid():
 
         if len(serialiazer.validated_data['password']) < 8:
-            return  Response({"detail": "password too short"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "password too short"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             user = serialiazer.save()
@@ -72,6 +73,7 @@ def register(request , format=None):
             return Response({"detail": "Username or email already exists."}, status=status.HTTP_400_BAD_REQUEST)
 
     return Response(serialiazer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ProfileViewSet(viewsets.ViewSet):
     authentication_classes = [TokenAuthentication]
