@@ -8,3 +8,6 @@ class Offer(models.Model):
     published_date = models.DateField(auto_now_add=True)
     price = models.FloatField(default=0)
     discount = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f'{self.seller} - {self.game} - {self.price} - {self.discount}'
